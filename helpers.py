@@ -14,7 +14,11 @@ from sklearn.model_selection import train_test_split
 # Function to load the ResNet model and the preprocess_input function dynamically
 # The function takes in the model_name, input_shape, include_top and weights as input
 # The function returns the model and the preprocess_input function
-def load_resnet_basemodel(model_name: str, input_shape=(224, 224, 3), include_top=False, weights='imagenet') -> tuple[tf.keras.Model, callable]:
+def load_resnet_basemodel(model_name : str, 
+                          input_shape : tuple[int, int, int] = (224, 224, 3), 
+                          include_top : bool = False,
+                          weights : str = 'imagenet'
+                          ) -> tuple[tf.keras.Model, callable]:
     
     # Check if the model_name is available in tf.keras.applications
     try:
@@ -52,7 +56,13 @@ def load_resnet_dependencies(model_name: str) -> tuple[callable]:
 # Function to get the image url from the API
 # The function takes in the tag, start_date, end_date, api_key and api_url as input
 # The function returns a list of dictionaries containing the image urls, timestamp and tag
-def get_image_urls(tag: str, start_date: str, end_date: str, api_key: str, api_url: str) -> list:
+def get_image_urls(tag: str,
+                   start_date: str,
+                   end_date: str,
+                   api_key: str,
+                   api_url: str
+                   ) -> list:
+    
     # Define the URL for the GET request using formatted string
     url = f"{api_url}?tag={tag}&start_date={start_date}&end_date={end_date}"
     
@@ -95,7 +105,13 @@ def get_image_urls(tag: str, start_date: str, end_date: str, api_key: str, api_u
 # Function to get the image urls from the API with multiple tags
 # The function takes in the tags (str or list), start_date, end_date, api_key and api_url as input
 # The function returns a list of dictionaries containing the image urls, timestamp and tag
-def get_image_urls_with_multiple_tags(tags: tuple[str, list], start_date: str, end_date: str, api_key: str, api_url: str) -> list:
+def get_image_urls_with_multiple_tags(tags: tuple[str, list],
+                                      start_date: str,
+                                      end_date: str,
+                                      api_key: str,
+                                      api_url: str
+                                      ) -> list:
+    
     # Initialize the responses list
     responses = []
     
@@ -118,6 +134,7 @@ def get_image_urls_with_multiple_tags(tags: tuple[str, list], start_date: str, e
 # Function the upload the image from the list of image urls (output from get_image_urls_with_multiple_tags)
 # The function downloads the images in the media folder, creates and returns a pd.Dataframe for the mapping of filenames and tags 
 def download_images_and_create_sample_map(image_urls: list) -> tuple[pd.DataFrame, None]:
+    
     # Remove images from the media folder
     for file in os.listdir('media'):
         os.remove(f"media/{file}")
@@ -152,7 +169,9 @@ def download_images_and_create_sample_map(image_urls: list) -> tuple[pd.DataFram
 # Function that create the path list and encoded labels for the images
 # The function takes in the df_sample_map dataframe and the image directory as input
 # The function returns a tuple of the image paths and encoded labels
-def create_path_list_and_encoded_label(df_sample_map: pd.DataFrame, image_dir: str) -> tuple[list[str], list[int]]:
+def create_path_list_and_encoded_label(df_sample_map: tuple[pd.DataFrame],
+                                       image_dir: str
+                                       ) -> tuple[list[str], list[int]]:
     
     # Create a list of file paths and labels
     image_paths = [os.path.join(image_dir, filename) for filename in df_sample_map['filename']]
@@ -188,7 +207,13 @@ def create_preprossesor(model_name: str) -> callable:
 # Function to create the training and validation datasets that can be using as input to the ResNet models
 # The function takes in the image_paths, encoded_labels, test_size, random_state and batch_size as input
 # The function returns the training and validation datasets
-def make_train_test_dataset(image_paths: list, encoded_labels: np.array, test_size: float, random_state: int, batch_size: int, model_name: str) -> tuple[tf.data.Dataset, tf.data.Dataset]:
+def make_train_test_dataset(image_paths: list,
+                            encoded_labels: np.array,
+                            test_size: float,
+                            random_state: int,
+                            batch_size: int,
+                            model_name: str
+                            ) -> tuple[tf.data.Dataset, tf.data.Dataset]:
     
     # We split the image_paths and the encoded_labels into training and validation datasets using the our beloved train_test_split function
     train_paths, val_paths, train_labels, val_labels = train_test_split(image_paths, 
@@ -200,13 +225,72 @@ def make_train_test_dataset(image_paths: list, encoded_labels: np.array, test_si
     # We create a tf.data.Dataset object from the training and validation datasets
     train_dataset = tf.data.Dataset.from_tensor_slices((train_paths, train_labels))
     val_dataset = tf.data.Dataset.from_tensor_slices((val_paths, val_labels))
-    
+
     # We the load_and_preprocess_image function using the model_name so that proper dependencies are loaded for the preprocessing
     load_and_preprocess_image = create_preprossesor(model_name)
     
     # We map and batch datasets
     train_dataset = train_dataset.map(load_and_preprocess_image).batch(batch_size).prefetch(tf.data.AUTOTUNE)
     val_dataset = val_dataset.map(load_and_preprocess_image).batch(batch_size).prefetch(tf.data.AUTOTUNE)
+    print("Training and validation datasets created successfully!")
     
-    # We return the training and validation datasets
     return train_dataset, val_dataset
+
+# Function to create the training and validation datasets that can be using as input to the ResNet models
+# The function takes in the image_paths, encoded_labels, test_size, random_state and batch_size as input
+# The function returns the training and validation datasets
+def make_train_test_dataset_from_image_urls(model_name : str,
+                                            tags: tuple[str, list],
+                                            start_date : str,
+                                            end_date : str,
+                                            api_key : str,
+                                            api_url : str,
+                                            batch_size : int = 10,
+                                            ) -> tuple[tf.data.Dataset, tf.data.Dataset]:
+    
+    # We collect the image urls for the selected tags and dates through the API
+    image_urls = get_image_urls_with_multiple_tags(tags, start_date, end_date, api_key, api_url)
+    if len(image_urls) != 0:
+        print(f"Number of images found: {len(image_urls)}")    
+        # We download the images and create a sample map
+        df_sample_map = download_images_and_create_sample_map(image_urls)
+        # We create the list of image paths and the encoded labels
+        image_paths, encoded_labels = create_path_list_and_encoded_label(df_sample_map, "media")
+        # We create the train and test dataset
+        train_dataset, val_dataset = make_train_test_dataset(image_paths, encoded_labels, test_size=0.2, random_state=42, batch_size=batch_size, model_name=model_name)
+        return train_dataset, val_dataset
+    else:
+        print("No images found for the selected tags and dates. Please check start_date and end_date and try again.")
+        sys.exit
+
+
+
+# The function is mean to compile the new model using the base_model and the custom layers respective to the model_name
+# Here the number of neurons in the last Dense layer is 3 because we have 3 categories and through is hard coded so that the model can be trained on 1, 2 or 3 categories   
+def compile_new_model(model_name: str,
+                      allowed_all_layers_to_be_trained: bool = True
+                      ) -> tf.keras.Model:
+    
+    # We load the base_model from keras repective to the model_name
+    base_model = load_resnet_basemodel(model_name, input_shape=(224, 224, 3), include_top=False, weights='imagenet')
+    
+    # We set the base_model to be trainable or not
+    base_model.trainable = allowed_all_layers_to_be_trained
+    
+    # We add custom layers on top
+    # We create a object variablr which is output of the base_model
+    x = base_model.output
+    # According to restnet architecture we perform a GlobalAveragePooling2D
+    x = tf.keras.layers.GlobalAveragePooling2D()(x)
+    # Then we add a Dense layer (2048 neurons, ReLu activation function)
+    x = tf.keras.layers.Dense(2048, activation='relu')(x)
+    # Then we add a final Dense layer (3 neurones because we have 3 categories, and a Softmax activation function to compute overall class probabilities) 
+    predictions = tf.keras.layers.Dense(3, activation='softmax')(x)  
+    
+    # We define the new model
+    model = tf.keras.Model(inputs=base_model.input, outputs=predictions)
+    # We compile our new model
+    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    print(f"New {model_name} compiled successfully and is ready to be trained!")
+    
+    return model
