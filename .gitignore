@@ -1,4 +1,5 @@
 media/
+model_archives
 _pychache_/
 *.env
 *.csv

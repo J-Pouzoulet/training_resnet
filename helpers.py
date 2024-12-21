@@ -33,6 +33,7 @@ def load_resnet_basemodel(model_name : str,
     except AttributeError:
         raise ValueError(f"Model '{model_name}' is not available in tf.keras.applications.")
 
+
 # Function to load the ResNet depencies dynamically
 # The function takes in the model_name
 # The function returns preprocess_input and decode_predictions functions 
@@ -204,6 +205,7 @@ def create_preprossesor(model_name: str) -> callable:
       
     return load_and_preprocess_image
 
+
 # Function to create the training and validation datasets that can be using as input to the ResNet models
 # The function takes in the image_paths, encoded_labels, test_size, random_state and batch_size as input
 # The function returns the training and validation datasets
@@ -236,6 +238,7 @@ def make_train_test_dataset(image_paths: list,
     
     return train_dataset, val_dataset
 
+
 # Function to create the training and validation datasets that can be using as input to the ResNet models
 # The function takes in the image_paths, encoded_labels, test_size, random_state and batch_size as input
 # The function returns the training and validation datasets
@@ -250,6 +253,8 @@ def make_train_test_dataset_from_image_urls(model_name : str,
     
     # We collect the image urls for the selected tags and dates through the API
     image_urls = get_image_urls_with_multiple_tags(tags, start_date, end_date, api_key, api_url)
+    
+    # We check if the image_urls is not empty
     if len(image_urls) != 0:
         print(f"Number of images found: {len(image_urls)}")    
         # We download the images and create a sample map
@@ -261,8 +266,8 @@ def make_train_test_dataset_from_image_urls(model_name : str,
         return train_dataset, val_dataset
     else:
         print("No images found for the selected tags and dates. Please check start_date and end_date and try again.")
+        # We stop the notebook execution if no images are found
         sys.exit
-
 
 
 # The function is mean to compile the new model using the base_model and the custom layers respective to the model_name
