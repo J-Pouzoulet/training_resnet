@@ -1,15 +1,7 @@
 import requests
-# from keras.applications import ResNet50
-from tensorflow.keras.optimizers import Adam
-#from keras.applications.resnet import preprocess_input, decode_predictions
-#from keras.preprocessing.image import load_img, img_to_array
 import tensorflow as tf
-#from tensorflow.keras.utils import to_categorical
-import numpy as np
-#from dotenv import load_dotenv
 import pandas as pd
 import os
-import sys
 import json
 
  
@@ -249,3 +241,25 @@ def create_train_val_datasets(df_sample_map: pd.DataFrame,
     val_dataset = val_dataset.map(load_and_preprocess_image).batch(batch_size).prefetch(tf.data.AUTOTUNE)
     
     return train_dataset, val_dataset
+
+# Function to create the test datasets
+# The function takes in the df_sample_map, image_dir, and the model_name (i.e the name of the resnet model) as input
+# The function returns the test dataset that can be used for evaluation
+def create_test_dataset(df_sample_map: pd.DataFrame,
+                              image_dir: str,
+                              model_name: str,
+                              batch_size: int = 5
+                              ) -> tuple:
+    
+    image_paths, encoded_labels = create_path_list_and_encoded_label(df_sample_map, image_dir)
+    
+    # We create a dataset of image paths and labels
+    dataset = tf.data.Dataset.from_tensor_slices((image_paths, encoded_labels))
+
+    # We the load_and_preprocess_image function using the model_name so that proper dependencies are loaded for the preprocessing
+    load_and_preprocess_image = create_preprossesor(model_name)
+    
+    # We use Batch and prefetch on both datasets for efficient training
+    test_dataset = dataset.map(load_and_preprocess_image).batch(batch_size).prefetch(tf.data.AUTOTUNE)
+
+    return test_dataset

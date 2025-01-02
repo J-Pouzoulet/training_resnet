@@ -6,19 +6,14 @@
 #from keras.preprocessing.image import load_img, img_to_array
 #import numpy as np
 import os
-import sys
 from dotenv import load_dotenv
-#import pandas as pd
-#from sklearn.model_selection import train_test_split
-#from datetime import datetime
-#from helpers import *
-from build_dataset import *
-from build_model import *
+from utils.build_dataset import *
+from utils.build_model import *
 import argparse
 from datetime import datetime
 import mlflow
 
-# We tet up argument parser so that they can be passed from the command line
+# We set up argument parser so that they can be passed from the command line
 parser = argparse.ArgumentParser(description="Train a ResNet model on a dataset of images given the classes, the start_date and the end_date.")
 parser.add_argument("--model_name", type=str, default="ResNet50", help="Accept ResNet50, ResNet50V2, ResNet101, ResNet101V2, ResNet152, ResNet152V2.")
 parser.add_argument("--labels", type=str, nargs="+", default="vine", help="Accept 'vine', 'grass', 'ground' or combination of them. ex: --labels vine grass")
@@ -34,7 +29,7 @@ model_name = args.model_name
 labels = args.labels
 start_date = args.start_date
 end_date = args.end_date
-experiment_name = args.experiment_name #+"_"+datetime.now().strftime("%Y%m%d-%H%M%S")
+experiment_name = args.experiment_name
 
 print(f"model: {model_name}")
 print(f"labels: {labels}")

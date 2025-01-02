@@ -57,7 +57,7 @@ def compile_new_model(model_name: str,
     # We create Adam optimizer with the specified learning rate
     optimizer = Adam(learning_rate=learning_rate)
     
-    # We compile our new model with the Adam optimizer, sparse_categorical_crossentropy as loss function (because we use integer encoded classes) and accuracy as metrics
+    # We compile our new model with the Adam optimizer, categorical_crossentropy as loss function (because we use integer encoded classes) and accuracy as metrics
     model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
     print(f"New {model_name} compiled successfully and is ready to be trained!")
     
