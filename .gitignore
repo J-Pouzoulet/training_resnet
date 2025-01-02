@@ -7,4 +7,4 @@ test_chouette_dev_python_data_ia.md
 *.db
 mlartifacts/
 mlruns/
-*.txt
+secrets.txt
