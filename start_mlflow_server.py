@@ -7,7 +7,7 @@ load_dotenv()
 
 # We set up argument parser so that they can be passed from the command line
 parser = argparse.ArgumentParser(description="Start an MLflow server using Sqlite and local folder or Azure backend(Posgresql and Blob Storage).")
-parser.add_argument("--storage", type=str, default="Local", help="Local, Azure")
+parser.add_argument("--storage", type=str, default="Local", help="The solution use for MLflow storage. Accept Local or Azure, default is Local.")
 
 # We parse the arguments
 args = parser.parse_args()
@@ -49,7 +49,7 @@ def run_mlflow_server(storage: str):
         ]
         
         # Add host and port options to the command
-        command.extend(["--host", "127.0.0.1"])
+        command.extend(["--host", "127.0.0.1", "--port", "5000"])
         
         print(f"Executing command: {' '.join(command)}")
 

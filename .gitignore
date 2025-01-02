@@ -8,3 +8,5 @@ test_chouette_dev_python_data_ia.md
 mlartifacts/
 mlruns/
 secrets.txt
+train.py
+test_chouette_dev_python_data_ia.md:Zone.Identifier

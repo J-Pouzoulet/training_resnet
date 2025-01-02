@@ -53,12 +53,12 @@ def compile_new_model(model_name: str,
     model = tf.keras.Model(inputs=base_model.input, outputs=predictions)
     
     # We specify the learning rate, we could use a learning rate scheduler instead
-    learning_rate = 0.001
+    learning_rate = 0.0001
     # We create Adam optimizer with the specified learning rate
     optimizer = Adam(learning_rate=learning_rate)
     
     # We compile our new model with the Adam optimizer, categorical_crossentropy as loss function (because we use integer encoded classes) and accuracy as metrics
-    model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy', tf.keras.metrics.Precision(), tf.keras.metrics.Recall()])
     print(f"New {model_name} compiled successfully and is ready to be trained!")
     
     return model
