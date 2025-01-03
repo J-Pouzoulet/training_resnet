@@ -4,7 +4,7 @@
 This project is a Python application that interacts with the Chouette Vision API to fetch images and manage machine learning experiments. It uses various services and tools such as MLflow for experiment tracking and Azure Blob Storage for data storage.
 
 ## Features
-- Build dataset from the Chouette Vision API with respective to labels (i.e. vine, ground, grass) and starting and end dates.
+- Build dataset from the Chouette Vision API with respect to labels (i.e. vine, ground, grass), resnet model versions, and starting and end dates.
 - Compile trainable Resnet model dynamically ()
 - Track machine learning experiments using MLflow.
 - Store experiments locally (Sqlite and Local Folder) or with Azure (Posgresql and Azure Blob Storage).
