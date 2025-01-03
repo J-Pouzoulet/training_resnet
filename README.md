@@ -92,7 +92,7 @@ The following steps describe installation setup using bash command line, and pye
 
     !!!The way MLflow CLI performs experiments and log paramaters and artifacts in the backend storage does not allowed environment variables to be set dynamically (like it is achieved in the notebook for instance)!!! 
     
-    Before running experiments through the mlflow CLI, set the follow environment variables in your shell session where experiments are run.
+    Before running experiments through the mlflow CLI, set the following environment variables in your shell session where experiments are run.
 
     For local storage solution (Sqlite and Local Folder):
     '''sh
@@ -106,7 +106,7 @@ The following steps describe installation setup using bash command line, and pye
     '''sh
     mlflow run . --model_name ResNet50 --labels vine --start_date 2021-05-27 --end_date 2021-06-01 --experiment-name your-experiment
     '''
-    To get addition information about accepted parameter's format
+    To get addition information about accepted parameters and their formats
     '''sh
     python train.py --help
     ''' 
