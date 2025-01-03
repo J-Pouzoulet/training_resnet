@@ -115,7 +115,6 @@ The following steps describe installation setup using bash command line, and pye
 
     ### Description of Key Files and Directories
 
-    - `__pycache__/`: Directory containing compiled Python files.
     - `.env`: Environment variables file containing configuration settings such as API keys and database credentials.
     - `.gitignore`: Specifies files and directories to be ignored by Git.
     - `.python-version`: Specifies the Python version used for the project.
