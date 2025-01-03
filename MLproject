@@ -9,16 +9,8 @@ entry_points:
       labels: {type: str, default: "vine"}
       start_date: {type: str, default: "2021-05-27"}
       end_date: {type: str, default: "2021-06-01"}
-      experiment_name: {type: str, default: "my_experiment"}
+      experiment_name: {type: str, default: "my_experiment_v22"}
       storage: {type: str, default: "Local"}
       number_of_epoch: {type: int, default: 5}
     command: >
-      python train.py 
-      --model_name {model_name} 
-      --labels {labels} 
-      --start_date {start_date} 
-      --end_date {end_date} 
-      --experiment_name {experiment_name} 
-      --storage {storage} 
-      --number_of_epoch {number_of_epoch}
-
+      python train.py --model_name {model_name} --labels {labels} --start_date {start_date} --end_date {end_date} --experiment_name {experiment_name} --storage {storage} --number_of_epoch {number_of_epoch}

@@ -40,7 +40,7 @@ def run_mlflow_server(storage: str):
         
         # We construct the command
         backend_store_uri = f"postgresql://{pguser}:{pgpassword}@{pghost}:{pgport}/{pgdatabase}"
-        default_artifact_root = f"wasbs://{container_name}@{storage_account_name}.blob.core.windows.net?{sas_token}"
+        default_artifact_root = f"wasbs://{container_name}@{storage_account_name}.blob.core.windows.net?"
 
         command = [
             "mlflow", "server",

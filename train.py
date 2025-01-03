@@ -8,6 +8,7 @@ from azure.storage.blob import BlobServiceClient
 import tempfile
 import mlflow.keras
 from tensorflow.keras.callbacks import ModelCheckpoint
+import pandas as pd
 
 # We set up argument parser so that they can be passed from the command line
 parser = argparse.ArgumentParser(description="Train a ResNet model on a dataset of images given the classes, the start_date and the end_date.")
@@ -44,6 +45,9 @@ load_dotenv()
 api_key = os.getenv("API_KEY")
 api_url = os.getenv("API_URL")
 
+print(f'---------------{os.environ["MLFLOW_TRACKING_URI"]}----------------')
+#print(f'----------------{os.environ["ARTIFACT_LOCATION"]}----------------')
+
 if storage == "Azure":
     # We need the follow variables to connect to the Azure Blob Storage
     container_name = os.getenv("AZURE_STORAGE_CONTAINER_NAME")
@@ -73,12 +77,14 @@ if storage == "Azure":
     
 else:
     # We constrauct the tracking URI for the Sqlite database
-    mlflow.set_tracking_uri("sqlite:///mlflow.db")
-    # We set the artifact location to the local folder
-    artifact_location = "mlruns"
-    
-# We generate the trainable model
-model = compile_new_model(model_name)
+    tracking_uri = f"sqlite:///{os.path.join(os.getcwd(), 'mlflow.db')}"
+    #tracking_uri = f"sqlite:///mlflow.db"
+    artifact_location = os.path.join(os.getcwd(), "mlruns")
+
+# We constrauct the tracking URI for the Sqlite database
+tracking_uri = f"sqlite:///{os.path.join(os.getcwd(), 'mlflow.db')}"
+#tracking_uri = "sqlite:///mlflow.db
+#artifact_location = os.path.join(os.getcwd(), "mlruns")
 
 # We collect the image urls for the labels and the dates
 image_urls = get_image_urls_with_multiple_labels(labels, start_date, end_date, api_key, api_url)
@@ -88,17 +94,21 @@ df_sample_map = create_sample_map(image_urls)
 image_dir = 'media'
 df_sample_map = download_images(df_sample_map, image_dir)
 # we save the dataset as a .csv file
-df_sample_map.to_csv("dataset_csv.csv")
+df_sample_map.to_csv(os.path.join(os.getcwd(), "dataset_csv.csv"))
 # We create the train and validation datasets for the given model
 train_dataset, val_dataset = create_train_val_datasets(df_sample_map,
                               image_dir = image_dir,
                               model_name = model_name,
                               )
 
-# Attempt to get the experiment by name
-existing_experiment = mlflow.get_experiment_by_name(experiment_name)
+# We set the MLflow tracking URI
+#mlflow.set_tracking_uri(tracking_uri)
+print("Tracking URI:", mlflow.get_tracking_uri())
 
-# We check if the experiment exists and create it if it doesn't
+'''# Attempt to get the experiment by name
+#existing_experiment = mlflow.get_experiment_by_name(experiment_name)'''
+
+'''# We check if the experiment exists and create it if it doesn't
 if existing_experiment is None:
     # If the experiment doesn't exist, create it
     experiment_id = mlflow.create_experiment(
@@ -110,13 +120,13 @@ if existing_experiment is None:
 else:
     # If the experiment exists, use the existing experiment
     experiment_id = existing_experiment.experiment_id
-    print(f"Experiment '{experiment_name}' already exists. Using the existing experiment.")
+    print(f"Experiment '{experiment_name}' already exists. Using the existing experiment.")'''
     
-temp_dir = 'temporary_model_dir'
+temp_dir = os.path.join(os.getcwd(),'temporary_model_dir')
 
 # We use a temporary directory for ModelCheckpoint
 with tempfile.TemporaryDirectory() as temp_dir:
-    checkpoint_filepath = f"{temp_dir}/best_model.keras"   
+    checkpoint_filepath = f"{temp_dir}/best_model.keras"
    
 # We define the ModelCheckpoint callback
 model_checkpoint = ModelCheckpoint(
@@ -132,18 +142,16 @@ model_checkpoint = ModelCheckpoint(
 number_of_epochs = 5
 
 # Start a new MLflow run
-with mlflow.start_run(experiment_id=experiment_id) as run:
+#with mlflow.start_run(experiment_id=experiment_id) as run:
+with mlflow.start_run() as run:
+    print(f"Started run with ID: {run.info.run_id}")
     
     # Unable autologging for the model using the keras autolog to save the model using the .keras file format
     mlflow.keras.autolog()
     
-    # We train the model
-    history = model.fit(
-        train_dataset,
-        validation_data=val_dataset,
-        epochs=number_of_epochs,
-        callbacks=[model_checkpoint])
-
+    # We generate the trainable model
+    model = compile_new_model(model_name)
+    
     # Log other parameters    
     mlflow.log_param("model_name", model_name)
     mlflow.log_param("labels", labels)
@@ -151,6 +159,13 @@ with mlflow.start_run(experiment_id=experiment_id) as run:
     mlflow.log_param("end_date", end_date)
     # Log the dataset as artifact
     mlflow.log_artifact("dataset_csv.csv")
-   
+    
+    # We train the model
+    history = model.fit(
+        train_dataset,
+        validation_data=val_dataset,
+        epochs=number_of_epochs,
+        callbacks=[model_checkpoint])
+    
 # We end the MLflow run
 mlflow.end_run()
