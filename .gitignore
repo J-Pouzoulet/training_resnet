@@ -1,6 +1,5 @@
 model_archive
 _pychache_/
-*.env
 *.csv
 test_chouette_dev_python_data_ia.md
 *.db
