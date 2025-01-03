@@ -11,3 +11,4 @@ train.py
 test_chouette_dev_python_data_ia.md:Zone.Identifier
 .python-version
 .ipynb_checkpoints/
+__pycache__/
