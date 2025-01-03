@@ -16,6 +16,7 @@ The following steps describe installation setup using bash command line, and pye
     ```sh
     git clone https://github.com/J-Pouzoulet/training_resnet.git
     cd training_resnet
+    mkdir media
     ```
 
 2. **Create a virtual environment**:
